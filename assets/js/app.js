@@ -33,9 +33,11 @@ const WORK_PRESETS = [
 ];
 
 let pdfModalInstance = null;
+let passwordModalInstance = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   pdfModalInstance = new bootstrap.Modal(document.getElementById("pdfModal"));
+  passwordModalInstance = new bootstrap.Modal(document.getElementById("changePasswordModal"));
   bindEvents();
   initApp();
 });
@@ -102,8 +104,8 @@ function restoreSavedSession() {
   if (!saved) return;
   try {
     const parsed = JSON.parse(saved);
-    if (parsed.nama && parsed.npsn) {
-      verifySchoolCredentials(parsed.nama, parsed.npsn, true);
+    if (parsed.nama && parsed.password) {
+      verifySchoolCredentials(parsed.nama, parsed.password, true);
     }
   } catch (_) {
     sessionStorage.removeItem("gnota_2026_session");
@@ -139,6 +141,14 @@ function bindEvents() {
     }
   });
 
+  document.getElementById("togglePasswordBtn").addEventListener("click", () => {
+    const passEl = document.getElementById("passwordInput");
+    const iconEl = document.querySelector("#togglePasswordBtn i");
+    const show = passEl.type === "password";
+    passEl.type = show ? "text" : "password";
+    iconEl.className = show ? "bi bi-eye-slash" : "bi bi-eye";
+  });
+
   document.getElementById("verifyForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!isApiConfigured()) {
@@ -147,23 +157,31 @@ function bindEvents() {
     }
 
     const namaSekolah = document.getElementById("selectedSchoolName").value.trim() || searchInput.value.trim();
-    const npsn = document.getElementById("npsnInput").value.trim();
-    if (!namaSekolah || !npsn) {
-      Swal.fire("Lengkapi Data", "Pilih Satuan Pendidikan dan masukkan NPSN sekolah.", "warning");
+    const password = document.getElementById("passwordInput").value.trim();
+    if (!namaSekolah || !password) {
+      Swal.fire("Lengkapi Data", "Pilih Satuan Pendidikan dan masukkan Password.", "warning");
       return;
     }
-    await verifySchoolCredentials(namaSekolah, npsn, false);
+    await verifySchoolCredentials(namaSekolah, password, false);
   });
 
   document.getElementById("btnSwitchSchool").addEventListener("click", () => {
     sessionStorage.removeItem("gnota_2026_session");
     state.activeSchool = null;
     state.students = [];
+    document.getElementById("passwordInput").value = "";
     resetStudentForm();
     document.getElementById("workspaceSection").classList.add("d-none");
     document.getElementById("headerSessionBadge").classList.add("d-none");
     document.getElementById("gateSection").classList.remove("d-none");
   });
+
+  document.getElementById("btnOpenPasswordModal").addEventListener("click", () => {
+    document.getElementById("changePasswordForm").reset();
+    passwordModalInstance.show();
+  });
+
+  document.getElementById("changePasswordForm").addEventListener("submit", handleChangePasswordSubmit);
 
   // Pekerjaan Orang Tua: Lainnya di urutan #1
   document.getElementById("pekerjaanSelect").addEventListener("change", (e) => {
@@ -185,11 +203,9 @@ function bindEvents() {
     pipWarn.classList.toggle("d-none", e.target.value !== "Menerima");
   });
 
-  // Validasi angka murni pada NISN & NPSN
-  ["nisn", "npsnInput"].forEach((id) => {
-    document.getElementById(id).addEventListener("input", (e) => {
-      e.target.value = e.target.value.replace(/\D/g, "");
-    });
+  // Validasi angka murni pada NISN
+  document.getElementById("nisn").addEventListener("input", (e) => {
+    e.target.value = e.target.value.replace(/\D/g, "");
   });
 
   document.getElementById("btnCancelEdit").addEventListener("click", resetStudentForm);
@@ -230,19 +246,19 @@ function renderSchoolDropdown(query) {
       document.getElementById("selectedSchoolName").value = nama;
       document.getElementById("clearSchoolBtn").classList.remove("d-none");
       dropdown.classList.add("d-none");
-      document.getElementById("npsnInput").focus();
+      document.getElementById("passwordInput").focus();
     });
   });
 
   dropdown.classList.remove("d-none");
 }
 
-async function verifySchoolCredentials(namaSekolah, npsn, silent) {
+async function verifySchoolCredentials(namaSekolah, password, silent) {
   const btn = document.getElementById("btnVerifySchool");
   const originalHtml = btn.innerHTML;
   if (!silent) {
     btn.disabled = true;
-    btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Memverifikasi...`;
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Memeriksa...`;
   }
 
   try {
@@ -251,12 +267,12 @@ async function verifySchoolCredentials(namaSekolah, npsn, silent) {
       body: JSON.stringify({
         action: "verifySchool",
         namaSekolah,
-        npsn
+        password
       })
     });
     const data = await res.json();
     if (!data.ok) {
-      throw new Error(data.message || "Verifikasi gagal.");
+      throw new Error(data.message || "Login gagal.");
     }
 
     state.config = data.config || state.config;
@@ -265,16 +281,67 @@ async function verifySchoolCredentials(namaSekolah, npsn, silent) {
 
     sessionStorage.setItem("gnota_2026_session", JSON.stringify({
       nama: state.activeSchool.nama,
-      npsn: state.activeSchool.npsn
+      password
     }));
 
     enterWorkspace();
   } catch (err) {
     if (!silent) {
-      Swal.fire("Verifikasi Gagal", err.message, "error");
+      Swal.fire("Login Gagal", err.message, "error");
     } else {
       sessionStorage.removeItem("gnota_2026_session");
     }
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+  }
+}
+
+async function handleChangePasswordSubmit(e) {
+  e.preventDefault();
+  if (!state.activeSchool) return;
+
+  const oldPassword = document.getElementById("oldPasswordInput").value.trim();
+  const newPassword = document.getElementById("newPasswordInput").value.trim();
+  const confirmPassword = document.getElementById("confirmPasswordInput").value.trim();
+
+  if (newPassword.length < 4) {
+    Swal.fire("Terlalu Pendek", "Password baru minimal 4 karakter.", "warning");
+    return;
+  }
+  if (newPassword !== confirmPassword) {
+    Swal.fire("Tidak Cocok", "Konfirmasi password baru tidak sama.", "warning");
+    return;
+  }
+
+  const btn = document.getElementById("btnSavePassword");
+  const originalHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...`;
+
+  try {
+    const res = await fetch(GAS_API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "changePassword",
+        npsn: state.activeSchool.npsn,
+        oldPassword,
+        newPassword
+      })
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      throw new Error(data.message || "Gagal mengganti password.");
+    }
+
+    sessionStorage.setItem("gnota_2026_session", JSON.stringify({
+      nama: state.activeSchool.nama,
+      password: newPassword
+    }));
+    passwordModalInstance.hide();
+    Swal.fire("Berhasil", data.message, "success");
+  } catch (err) {
+    Swal.fire("Gagal", err.message, "error");
   } finally {
     btn.disabled = false;
     btn.innerHTML = originalHtml;

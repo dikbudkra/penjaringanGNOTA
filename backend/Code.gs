@@ -84,23 +84,40 @@ function getConfigMap_(ss) {
 function getMasterSmpList_(ss) {
   const sheet = ss.getSheetByName(SHEET_MASTER_SMP);
   if (!sheet || sheet.getLastRow() < 2) return [];
-  const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 4).getValues();
+  const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 5).getValues();
   const list = [];
-  rows.forEach(function (r) {
+  rows.forEach(function (r, idx) {
     const npsn = String(r[0] || "").trim();
     const nama = String(r[1] || "").trim();
     const status = String(r[2] || "").trim();
     const kecamatan = String(r[3] || "").trim();
+    const password = String(r[4] || "").trim() || npsn;
     if (npsn && nama) {
       list.push({
+        rowIndex: idx + 2,
         npsn: npsn,
         nama: nama,
         status: status,
-        kecamatan: kecamatan
+        kecamatan: kecamatan,
+        password: password
       });
     }
   });
   return list;
+}
+
+/**
+ * Helper: Cari sekolah di Master_SMP berdasarkan Nama Satuan Pendidikan
+ */
+function findSchoolByName_(ss, namaSekolah) {
+  const cleanNama = String(namaSekolah || "").trim().toUpperCase();
+  const list = getMasterSmpList_(ss);
+  for (let i = 0; i < list.length; i++) {
+    if (list[i].nama.toUpperCase() === cleanNama) {
+      return list[i];
+    }
+  }
+  return null;
 }
 
 /**
@@ -305,7 +322,7 @@ function doGet(e) {
     }
 
     if (action === "verifySchool") {
-      return handleVerifySchool_(ss, params.namaSekolah, params.npsn);
+      return handleVerifySchool_(ss, params.namaSekolah, params.password || params.npsn);
     }
 
     return jsonResponse_({ ok: false, message: "Action GET tidak dikenali." });
@@ -325,7 +342,11 @@ function doPost(e) {
     const ss = getSpreadsheet_();
 
     if (action === "verifySchool") {
-      return handleVerifySchool_(ss, body.namaSekolah, body.npsn);
+      return handleVerifySchool_(ss, body.namaSekolah, body.password || body.npsn);
+    }
+
+    if (action === "changePassword") {
+      return handleChangePassword_(ss, body);
     }
 
     if (action === "saveStudent") {
@@ -343,22 +364,22 @@ function doPost(e) {
 }
 
 /**
- * Handler: Verifikasi Cepat NPSN
+ * Handler: Login Sekolah (Nama Sekolah + Password)
  */
-function handleVerifySchool_(ss, namaSekolah, npsn) {
+function handleVerifySchool_(ss, namaSekolah, passwordInput) {
   const config = getConfigMap_(ss);
-  const cleanNpsn = String(npsn || "").trim();
+  const cleanPass = String(passwordInput || "").trim();
   const cleanNama = String(namaSekolah || "").trim().toUpperCase();
 
-  if (!cleanNpsn || !cleanNama) {
-    return jsonResponse_({ ok: false, message: "Pilih Satuan Pendidikan dan masukkan NPSN terlebih dahulu." });
+  if (!cleanPass || !cleanNama) {
+    return jsonResponse_({ ok: false, message: "Pilih Satuan Pendidikan dan masukkan Password terlebih dahulu." });
   }
 
-  const school = findSchoolByNpsn_(ss, cleanNpsn);
-  if (!school || school.nama.toUpperCase() !== cleanNama) {
+  const school = findSchoolByName_(ss, cleanNama);
+  if (!school || school.password !== cleanPass) {
     return jsonResponse_({
       ok: false,
-      message: "NPSN tidak cocok dengan Satuan Pendidikan yang dipilih. Silakan periksa kembali."
+      message: "Password tidak sesuai dengan Satuan Pendidikan yang dipilih. Silakan periksa kembali."
     });
   }
 
@@ -366,9 +387,54 @@ function handleVerifySchool_(ss, namaSekolah, npsn) {
   return jsonResponse_({
     ok: true,
     config: config,
-    school: school,
+    school: {
+      npsn: school.npsn,
+      nama: school.nama,
+      status: school.status,
+      kecamatan: school.kecamatan
+    },
     students: students
   });
+}
+
+/**
+ * Handler: Ganti Password Sekolah
+ */
+function handleChangePassword_(ss, body) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    const npsn = String(body.npsn || "").trim();
+    const oldPass = String(body.oldPassword || "").trim();
+    const newPass = String(body.newPassword || "").trim();
+
+    if (!npsn || !oldPass || !newPass) {
+      return jsonResponse_({ ok: false, message: "Lengkapi password lama dan password baru." });
+    }
+    if (newPass.length < 4) {
+      return jsonResponse_({ ok: false, message: "Password baru minimal 4 karakter." });
+    }
+
+    const school = findSchoolByNpsn_(ss, npsn);
+    if (!school) {
+      return jsonResponse_({ ok: false, message: "Data sekolah tidak ditemukan." });
+    }
+    if (school.password !== oldPass) {
+      return jsonResponse_({ ok: false, message: "Password lama tidak sesuai." });
+    }
+
+    const masterSheet = ss.getSheetByName(SHEET_MASTER_SMP);
+    const cell = masterSheet.getRange(school.rowIndex, 5);
+    cell.setNumberFormat("@");
+    cell.setValue(newPass);
+
+    return jsonResponse_({
+      ok: true,
+      message: "Password sekolah berhasil diperbarui dan tersimpan di sistem."
+    });
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 /**

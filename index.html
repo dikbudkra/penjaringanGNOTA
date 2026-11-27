@@ -13,7 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=20261127c">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261127d">
 </head>
 <body class="d-flex flex-column min-vh-100">
 
@@ -88,7 +88,7 @@
       </div>
     </section>
 
-    <!-- 3. HALAMAN VERIFIKASI CEPAT NPSN -->
+    <!-- 3. HALAMAN LOGIN SATUAN PENDIDIKAN -->
     <section id="gateSection">
       <div class="row justify-content-center">
         <div class="col-lg-7 col-xl-6">
@@ -96,18 +96,15 @@
             <div class="card-body p-4 p-md-5">
               <div class="text-center mb-4">
                 <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 mb-2 fw-semibold">
-                  <i class="bi bi-shield-check me-1"></i> Verifikasi Cepat Satuan Pendidikan
+                  <i class="bi bi-shield-lock me-1"></i> Login Satuan Pendidikan
                 </span>
-                <h2 class="h4 fw-bold text-dark mb-1">Masuk Ruang Usulan Sekolah</h2>
-                <p class="text-secondary small mb-0">
-                  Pilih nama SMP Anda dan masukkan <strong>NPSN</strong> sebagai kunci akses (maksimal usulan <strong>10 siswa</strong> per sekolah).
-                </p>
+                <h2 class="h4 fw-bold text-dark mb-0">Ruang Usulan Sekolah</h2>
               </div>
 
               <form id="verifyForm" novalidate>
                 <div class="mb-3 position-relative">
                   <label for="schoolSearchInput" class="form-label fw-semibold">
-                    Satuan Pendidikan (SMP) <span class="text-danger">*</span>
+                    Satuan Pendidikan (SMP)
                   </label>
                   <div class="input-group">
                     <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
@@ -118,16 +115,18 @@
                   </div>
                   <input type="hidden" id="selectedSchoolName">
                   <div id="schoolDropdown" class="autocomplete-dropdown shadow-lg d-none"></div>
-                  <div class="form-text">Daftar diambil dari Master Data SMP Kabupaten Karanganyar (85 sekolah).</div>
                 </div>
 
                 <div class="mb-4">
-                  <label for="npsnInput" class="form-label fw-semibold">
-                    NPSN Sekolah <span class="text-danger">*</span>
+                  <label for="passwordInput" class="form-label fw-semibold">
+                    Password
                   </label>
                   <div class="input-group">
                     <span class="input-group-text bg-light"><i class="bi bi-key"></i></span>
-                    <input type="text" id="npsnInput" class="form-control form-control-lg" inputmode="numeric" maxlength="8" placeholder="Masukkan 8 digit NPSN sekolah" required>
+                    <input type="password" id="passwordInput" class="form-control form-control-lg" placeholder="Masukkan password sekolah" autocomplete="current-password" required>
+                    <button type="button" id="togglePasswordBtn" class="btn btn-outline-secondary" title="Tampilkan / Sembunyikan Password">
+                      <i class="bi bi-eye"></i>
+                    </button>
                   </div>
                 </div>
 
@@ -157,9 +156,14 @@
                 NPSN: <strong id="wsSchoolNpsn">-</strong> &bull; Kecamatan: <strong id="wsSchoolKecamatan">-</strong>
               </p>
             </div>
-            <button type="button" id="btnSwitchSchool" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-              <i class="bi bi-arrow-left-right me-1"></i> Ganti Sekolah
-            </button>
+            <div class="d-flex align-items-center gap-2">
+              <button type="button" id="btnOpenPasswordModal" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                <i class="bi bi-key me-1"></i> Ganti Password
+              </button>
+              <button type="button" id="btnSwitchSchool" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                <i class="bi bi-box-arrow-left me-1"></i> Keluar
+              </button>
+            </div>
           </div>
 
           <div class="quota-box p-3 rounded-3">
@@ -371,6 +375,42 @@
     </div>
   </div>
 
+  <!-- ==================== MODAL GANTI PASSWORD ==================== -->
+  <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow rounded-4">
+        <form id="changePasswordForm">
+          <div class="modal-header border-bottom">
+            <h5 class="modal-title fw-bold">
+              <i class="bi bi-key-fill text-primary me-2"></i>Ganti Password Sekolah
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="oldPasswordInput" class="form-label small fw-semibold">Password Lama</label>
+              <input type="password" id="oldPasswordInput" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label for="newPasswordInput" class="form-label small fw-semibold">Password Baru (min. 4 karakter)</label>
+              <input type="password" id="newPasswordInput" class="form-control" minlength="4" required>
+            </div>
+            <div class="mb-2">
+              <label for="confirmPasswordInput" class="form-label small fw-semibold">Ulangi Password Baru</label>
+              <input type="password" id="confirmPasswordInput" class="form-control" minlength="4" required>
+            </div>
+          </div>
+          <div class="modal-footer border-top">
+            <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
+            <button type="submit" id="btnSavePassword" class="btn btn-gnota-primary rounded-pill px-4 fw-bold">
+              Simpan Password
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== BRANDING FOOTER JEMPROT ==================== -->
   <footer class="py-3 mt-4 border-top bg-white">
     <div class="container text-center">
@@ -387,6 +427,6 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-  <script src="assets/js/app.js?v=20261127c"></script>
+  <script src="assets/js/app.js?v=20261127d"></script>
 </body>
 </html>
