@@ -641,7 +641,7 @@ async function generateSchoolPdf() {
 
   const [logoKra, logoGnota] = await Promise.all([
     loadImageAsDataUrl("assets/img/logo-karanganyar.png"),
-    loadImageAsDataUrl("assets/img/logo-gnota.svg", true)
+    loadImageAsDataUrl("assets/img/logo-gnota.png")
   ]);
 
   if (logoKra) doc.addImage(logoKra, "PNG", 14, 10, 16, 18);
