@@ -34,6 +34,8 @@ const WORK_PRESETS = [
 
 let pdfModalInstance = null;
 let passwordModalInstance = null;
+let idleLogoutTimer = null;
+const IDLE_TIMEOUT_MS = 20 * 60 * 1000; // Auto sign-out 20 menit tanpa aktivitas
 
 document.addEventListener("DOMContentLoaded", () => {
   pdfModalInstance = new bootstrap.Modal(document.getElementById("pdfModal"));
@@ -166,14 +168,12 @@ function bindEvents() {
   });
 
   document.getElementById("btnSwitchSchool").addEventListener("click", () => {
-    sessionStorage.removeItem("gnota_2026_session");
-    state.activeSchool = null;
-    state.students = [];
-    document.getElementById("passwordInput").value = "";
-    resetStudentForm();
-    document.getElementById("workspaceSection").classList.add("d-none");
-    document.getElementById("headerSessionBadge").classList.add("d-none");
-    document.getElementById("gateSection").classList.remove("d-none");
+    performLogout(false);
+  });
+
+  // Lacak aktivitas pengguna untuk reset timer auto sign-out 20 menit
+  ["mousemove", "mousedown", "keydown", "touchstart", "scroll"].forEach((evt) => {
+    document.addEventListener(evt, resetIdleTimer, { passive: true });
   });
 
   document.getElementById("btnOpenPasswordModal").addEventListener("click", () => {
@@ -348,6 +348,43 @@ async function handleChangePasswordSubmit(e) {
   }
 }
 
+function resetIdleTimer() {
+  if (!state.activeSchool) return;
+  if (idleLogoutTimer) clearTimeout(idleLogoutTimer);
+  idleLogoutTimer = setTimeout(() => {
+    performLogout(true);
+  }, IDLE_TIMEOUT_MS);
+}
+
+function stopIdleTimer() {
+  if (idleLogoutTimer) {
+    clearTimeout(idleLogoutTimer);
+    idleLogoutTimer = null;
+  }
+}
+
+function performLogout(isAutoTimeout) {
+  stopIdleTimer();
+  sessionStorage.removeItem("gnota_2026_session");
+  state.activeSchool = null;
+  state.students = [];
+  document.getElementById("passwordInput").value = "";
+  if (pdfModalInstance) pdfModalInstance.hide();
+  if (passwordModalInstance) passwordModalInstance.hide();
+  resetStudentForm();
+  document.getElementById("workspaceSection").classList.add("d-none");
+  document.getElementById("headerSessionBadge").classList.add("d-none");
+  document.getElementById("gateSection").classList.remove("d-none");
+
+  if (isAutoTimeout) {
+    Swal.fire({
+      icon: "info",
+      title: "Sesi Berakhir (Auto Sign-Out)",
+      text: "Anda otomatis keluar karena tidak ada aktivitas selama 20 menit."
+    });
+  }
+}
+
 function enterWorkspace() {
   const s = state.activeSchool;
   document.getElementById("gateSection").classList.add("d-none");
@@ -362,6 +399,7 @@ function enterWorkspace() {
   document.getElementById("satuanPendidikan").value = s.nama;
 
   renderWorkspaceData();
+  resetIdleTimer();
 }
 
 function renderWorkspaceData() {
