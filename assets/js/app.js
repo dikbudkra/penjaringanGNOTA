@@ -6,7 +6,7 @@
  */
 
 // TODO: Tempel URL Web App Google Apps Script setelah deploy backend/Code.gs
-const GAS_API_URL = "PASTE_URL_WEB_APP_GAS_DISINI";
+const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzJxgQE6Puy4bAL747kD9zGQ_dQYlScXucHsK0f2SbLRqCnC6_XdSGYzdOFt4cuTJ35kg/exec";
 
 const state = {
   config: {
