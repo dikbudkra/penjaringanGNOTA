@@ -79,6 +79,28 @@ function getConfigMap_(ss) {
 }
 
 /**
+ * Helper: Ambil kuota maksimal khusus per sekolah dari Config!D2:J86 (kosong = default)
+ */
+function getSchoolMaxSiswa_(ss, npsn, defaultMax) {
+  const sheet = ss.getSheetByName(SHEET_CONFIG);
+  const fallback = Number(defaultMax || DEFAULT_MAX_SISWA);
+  if (!sheet || sheet.getLastRow() < 2) return fallback;
+
+  const cleanNpsn = String(npsn || "").trim();
+  const rows = sheet.getRange(2, 4, sheet.getLastRow() - 1, 7).getValues(); // D..J
+  for (let i = 0; i < rows.length; i++) {
+    if (String(rows[i][0] || "").trim() === cleanNpsn) {
+      const custom = parseInt(rows[i][6], 10); // kolom J
+      if (!isNaN(custom) && custom > 0) {
+        return custom;
+      }
+      break;
+    }
+  }
+  return fallback;
+}
+
+/**
  * Helper: Ambil daftar Master SMP dari tab Master_SMP
  */
 function getMasterSmpList_(ss) {
@@ -384,6 +406,7 @@ function handleVerifySchool_(ss, namaSekolah, passwordInput) {
   }
 
   const students = getStudentsByNpsn_(ss, school.npsn);
+  const schoolMax = getSchoolMaxSiswa_(ss, school.npsn, config.maxSiswa);
   return jsonResponse_({
     ok: true,
     config: config,
@@ -391,7 +414,8 @@ function handleVerifySchool_(ss, namaSekolah, passwordInput) {
       npsn: school.npsn,
       nama: school.nama,
       status: school.status,
-      kecamatan: school.kecamatan
+      kecamatan: school.kecamatan,
+      maxSiswa: schoolMax
     },
     students: students
   });
@@ -496,6 +520,7 @@ function handleSaveStudent_(ss, body) {
 
     const nowWib = Utilities.formatDate(new Date(), "Asia/Jakarta", "dd/MM/yyyy HH:mm:ss");
     const existingStudents = getStudentsByNpsn_(ss, school.npsn);
+    const schoolMax = getSchoolMaxSiswa_(ss, school.npsn, config.maxSiswa);
 
     if (editId) {
       // Mode Edit
@@ -529,11 +554,11 @@ function handleSaveStudent_(ss, body) {
         keterangan
       ]]);
     } else {
-      // Mode Tambah Baru -> Cek kuota maks 10
-      if (existingStudents.length >= config.maxSiswa) {
+      // Mode Tambah Baru -> Cek kuota maksimal efektif sekolah
+      if (existingStudents.length >= schoolMax) {
         return jsonResponse_({
           ok: false,
-          message: "Kuota sekolah sudah penuh (" + config.maxSiswa + "/" + config.maxSiswa + " siswa)."
+          message: "Kuota sekolah sudah penuh (" + schoolMax + "/" + schoolMax + " siswa)."
         });
       }
 
@@ -566,6 +591,7 @@ function handleSaveStudent_(ss, body) {
     return jsonResponse_({
       ok: true,
       message: editId ? "Data siswa berhasil diperbarui." : "Data siswa berhasil disimpan.",
+      maxSiswa: schoolMax,
       students: updatedStudents
     });
   } finally {
@@ -618,9 +644,11 @@ function handleDeleteStudent_(ss, body) {
     syncSchoolSheet_(ss, school);
 
     const updatedStudents = getStudentsByNpsn_(ss, school.npsn);
+    const schoolMax = getSchoolMaxSiswa_(ss, school.npsn, config.maxSiswa);
     return jsonResponse_({
       ok: true,
       message: "Data siswa berhasil dihapus.",
+      maxSiswa: schoolMax,
       students: updatedStudents
     });
   } finally {

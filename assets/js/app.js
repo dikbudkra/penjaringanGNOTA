@@ -403,7 +403,7 @@ function enterWorkspace() {
 }
 
 function renderWorkspaceData() {
-  const max = Number(state.config.maxSiswa || 10);
+  const max = Number((state.activeSchool && state.activeSchool.maxSiswa) || state.config.maxSiswa || 10);
   const count = state.students.length;
   const pct = Math.min(100, Math.round((count / max) * 100));
 
@@ -540,6 +540,9 @@ async function handleStudentSubmit(e) {
     }
 
     state.students = data.students || [];
+    if (data.maxSiswa && state.activeSchool) {
+      state.activeSchool.maxSiswa = data.maxSiswa;
+    }
     resetStudentForm();
     renderWorkspaceData();
 
@@ -636,6 +639,9 @@ window.confirmDeleteStudent = async function (id, namaSiswa) {
       throw new Error(data.message || "Gagal menghapus data.");
     }
     state.students = data.students || [];
+    if (data.maxSiswa && state.activeSchool) {
+      state.activeSchool.maxSiswa = data.maxSiswa;
+    }
     if (document.getElementById("editStudentId").value === id) {
       resetStudentForm();
     } else {
