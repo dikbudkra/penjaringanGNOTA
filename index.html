@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Penjaringan GNOTA 2026 — Jenjang SMP | Disdikbud Kab. Karanganyar</title>
+  <meta name="description" content="Portal Penjaringan Data Calon Penerima Bantuan GNOTA Tahun 2026 Jenjang SMP Dinas Pendidikan dan Kebudayaan Kabupaten Karanganyar.">
+  <link rel="icon" type="image/png" href="assets/img/logo-karanganyar.png">
+
+  <!-- Fonts & CSS Libraries -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+  <!-- ==================== SPLASH SCREEN ==================== -->
+  <div id="splashScreen" class="splash-screen">
+    <div class="splash-content text-center px-4">
+      <div class="d-flex align-items-center justify-content-center gap-3 mb-3">
+        <img src="assets/img/logo-karanganyar.png" alt="Logo Kabupaten Karanganyar" class="splash-logo">
+        <img src="assets/img/logo-gnota.svg" alt="Logo GNOTA" class="splash-logo">
+      </div>
+      <h2 class="h5 fw-extrabold text-primary-gnota mb-1">PENJARINGAN GNOTA 2026</h2>
+      <p class="small text-secondary fw-semibold text-uppercase mb-3">Jenjang SMP • Disdikbud Kab. Karanganyar</p>
+      <div class="spinner-border text-warning spinner-border-sm" role="status">
+        <span class="visually-hidden">Memuat...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== HEADER GNOTA ==================== -->
+  <header class="gnota-header shadow-sm">
+    <div class="container py-3">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div class="d-flex align-items-center gap-3">
+          <div class="logo-pair d-flex align-items-center gap-2 bg-white rounded-3 px-2 py-1 shadow-sm">
+            <img src="assets/img/logo-karanganyar.png" alt="Logo Kabupaten Karanganyar" class="header-logo">
+            <div class="logo-divider"></div>
+            <img src="assets/img/logo-gnota.svg" alt="Logo GNOTA" class="header-logo">
+          </div>
+          <div>
+            <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
+              <span class="badge badge-gnota-amber">JENJANG SMP • TAHUN 2026</span>
+            </div>
+            <h1 class="h5 fw-extrabold text-white mb-0">Penjaringan Calon Penerima GNOTA</h1>
+            <p class="small text-white-50 mb-0">Dinas Pendidikan dan Kebudayaan Kabupaten Karanganyar</p>
+          </div>
+        </div>
+        <div id="headerSessionBadge" class="d-none">
+          <span class="badge bg-white text-dark px-3 py-2 rounded-pill shadow-sm fw-semibold">
+            <i class="bi bi-building-check text-primary me-1"></i>
+            <span id="headerSchoolName">-</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== KONTEN UTAMA ==================== -->
+  <main class="container my-4 flex-grow-1">
+
+    <!-- 1. BANNER KONFIGURASI API BELUM DIATUR (JIKA PERLU) -->
+    <div id="apiWarningBanner" class="alert alert-warning border-0 shadow-sm rounded-4 d-none mb-4">
+      <div class="d-flex align-items-start gap-2">
+        <i class="bi bi-exclamation-triangle-fill fs-5 mt-1"></i>
+        <div>
+          <strong>URL Google Apps Script Belum Terpasang:</strong> Silakan deploy <code>backend/Code.gs</code> sebagai Web App lalu tempel URL-nya pada <code>GAS_API_URL</code> di <code>assets/js/app.js</code>.
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. STATUS PENJARINGAN DITUTUP -->
+    <section id="closedSection" class="d-none">
+      <div class="card border-0 shadow-sm rounded-4 text-center p-4 p-md-5 mx-auto" style="max-width: 680px;">
+        <div class="mb-3">
+          <span class="icon-circle-warning mx-auto">
+            <i class="bi bi-lock-fill fs-2"></i>
+          </span>
+        </div>
+        <h2 class="h4 fw-bold text-dark mb-2">Penjaringan Data GNOTA 2026 Ditutup</h2>
+        <p id="closedMessageText" class="text-secondary mb-0">
+          Masa penjaringan data calon penerima GNOTA Jenjang SMP Tahun 2026 telah ditutup.
+        </p>
+      </div>
+    </section>
+
+    <!-- 3. HALAMAN VERIFIKASI CEPAT NPSN -->
+    <section id="gateSection">
+      <div class="row justify-content-center">
+        <div class="col-lg-7 col-xl-6">
+          <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="card-body p-4 p-md-5">
+              <div class="text-center mb-4">
+                <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 mb-2 fw-semibold">
+                  <i class="bi bi-shield-check me-1"></i> Verifikasi Cepat Satuan Pendidikan
+                </span>
+                <h2 class="h4 fw-bold text-dark mb-1">Masuk Ruang Usulan Sekolah</h2>
+                <p class="text-secondary small mb-0">
+                  Pilih nama SMP Anda dan masukkan <strong>NPSN</strong> sebagai kunci akses (maksimal usulan <strong>10 siswa</strong> per sekolah).
+                </p>
+              </div>
+
+              <form id="verifyForm" novalidate>
+                <div class="mb-3 position-relative">
+                  <label for="schoolSearchInput" class="form-label fw-semibold">
+                    Satuan Pendidikan (SMP) <span class="text-danger">*</span>
+                  </label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                    <input type="text" id="schoolSearchInput" class="form-control form-control-lg" placeholder="Ketik nama SMP Negeri / Swasta..." autocomplete="off" required>
+                    <button type="button" id="clearSchoolBtn" class="btn btn-outline-secondary d-none" title="Hapus pilihan">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                  </div>
+                  <input type="hidden" id="selectedSchoolName">
+                  <div id="schoolDropdown" class="autocomplete-dropdown shadow-lg d-none"></div>
+                  <div class="form-text">Daftar diambil dari Master Data SMP Kabupaten Karanganyar (85 sekolah).</div>
+                </div>
+
+                <div class="mb-4">
+                  <label for="npsnInput" class="form-label fw-semibold">
+                    NPSN Sekolah <span class="text-danger">*</span>
+                  </label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-key"></i></span>
+                    <input type="text" id="npsnInput" class="form-control form-control-lg" inputmode="numeric" maxlength="8" placeholder="Masukkan 8 digit NPSN sekolah" required>
+                  </div>
+                </div>
+
+                <button type="submit" id="btnVerifySchool" class="btn btn-gnota-primary btn-lg w-100 rounded-3 fw-bold">
+                  <i class="bi bi-box-arrow-in-right me-2"></i> Buka Form Usulan GNOTA
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. RUANG KERJA SEKOLAH (FORM 9 KOLOM + TABEL REKAP + PDF) -->
+    <section id="workspaceSection" class="d-none">
+
+      <!-- Kartu Identitas Sekolah & Indikator Kuota -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-3 p-md-4">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+            <div>
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <h2 id="wsSchoolName" class="h5 fw-bold text-dark mb-0">-</h2>
+                <span id="wsSchoolStatus" class="badge bg-info-subtle text-info-emphasis rounded-pill">-</span>
+              </div>
+              <p class="text-secondary small mb-0 mt-1">
+                NPSN: <strong id="wsSchoolNpsn">-</strong> &bull; Kecamatan: <strong id="wsSchoolKecamatan">-</strong>
+              </p>
+            </div>
+            <button type="button" id="btnSwitchSchool" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+              <i class="bi bi-arrow-left-right me-1"></i> Ganti Sekolah
+            </button>
+          </div>
+
+          <div class="quota-box p-3 rounded-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="small fw-semibold text-dark">
+                <i class="bi bi-people-fill text-primary me-1"></i> Kuota Usulan Sekolah
+              </span>
+              <span id="quotaText" class="badge bg-primary rounded-pill px-3 py-1">0 / 10 Siswa</span>
+            </div>
+            <div class="progress" style="height: 10px;">
+              <div id="quotaProgressBar" class="progress-bar bg-primary" role="progressbar" style="width: 0%;"></div>
+            </div>
+            <p id="quotaNotice" class="small text-secondary mb-0 mt-2">
+              Silakan input data calon penerima GNOTA satu per satu. Data langsung tersimpan ke server.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Input 9 Kolom Wajib -->
+      <div id="studentFormCard" class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+          <div>
+            <h3 id="formCardTitle" class="h6 fw-bold text-primary-gnota mb-0">
+              <i class="bi bi-person-plus-fill me-2"></i>Tambah Calon Penerima GNOTA
+            </h3>
+          </div>
+          <button type="button" id="btnCancelEdit" class="btn btn-sm btn-outline-danger rounded-pill d-none">
+            <i class="bi bi-x-circle me-1"></i> Batal Edit
+          </button>
+        </div>
+        <div class="card-body p-4">
+          <form id="studentForm" novalidate>
+            <input type="hidden" id="editStudentId">
+            <div class="row g-3">
+
+              <!-- 1. Nama Siswa -->
+              <div class="col-md-6">
+                <label for="namaSiswa" class="form-label fw-semibold">Nama Siswa <span class="text-danger">*</span></label>
+                <input type="text" id="namaSiswa" class="form-control text-uppercase" placeholder="Nama lengkap sesuai Dapodik/KK" required>
+              </div>
+
+              <!-- 2. NISN -->
+              <div class="col-md-3">
+                <label for="nisn" class="form-label fw-semibold">NISN (10 Digit) <span class="text-danger">*</span></label>
+                <input type="text" id="nisn" class="form-control" inputmode="numeric" maxlength="10" placeholder="Contoh: 0123456789" required>
+              </div>
+
+              <!-- 3. Jenis Kelamin -->
+              <div class="col-md-3">
+                <label for="jenisKelamin" class="form-label fw-semibold">Jenis Kelamin <span class="text-danger">*</span></label>
+                <select id="jenisKelamin" class="form-select" required>
+                  <option value="">-- Pilih L / P --</option>
+                  <option value="L">L (Laki-laki)</option>
+                  <option value="P">P (Perempuan)</option>
+                </select>
+              </div>
+
+              <!-- 4. Kelas -->
+              <div class="col-md-3">
+                <label for="kelas" class="form-label fw-semibold">Kelas <span class="text-danger">*</span></label>
+                <select id="kelas" class="form-select" required>
+                  <option value="">-- Pilih Kelas --</option>
+                  <option value="Kelas 7">Kelas 7</option>
+                  <option value="Kelas 8">Kelas 8</option>
+                  <option value="Kelas 9">Kelas 9</option>
+                </select>
+              </div>
+
+              <!-- 5. Satuan Pendidikan (Readonly) -->
+              <div class="col-md-5">
+                <label for="satuanPendidikan" class="form-label fw-semibold">Satuan Pendidikan <span class="text-danger">*</span></label>
+                <input type="text" id="satuanPendidikan" class="form-control bg-light fw-semibold" readonly required>
+              </div>
+
+              <!-- 6. Nama Orang Tua/Wali -->
+              <div class="col-md-4">
+                <label for="namaOrtu" class="form-label fw-semibold">Nama Orang Tua / Wali <span class="text-danger">*</span></label>
+                <input type="text" id="namaOrtu" class="form-control text-uppercase" placeholder="Nama ayah / ibu / wali" required>
+              </div>
+
+              <!-- 7. Pekerjaan Orang Tua/Wali ("Lainnya" di urutan #1) -->
+              <div class="col-md-6">
+                <label for="pekerjaanSelect" class="form-label fw-semibold">Pekerjaan Orang Tua / Wali <span class="text-danger">*</span></label>
+                <select id="pekerjaanSelect" class="form-select" required>
+                  <option value="">-- Pilih Pekerjaan --</option>
+                  <option value="__LAINNYA__">Lainnya (Ketik Manual)</option>
+                  <option value="BURUH HARIAN LEPAS">Buruh Harian Lepas</option>
+                  <option value="PETANI / BURUH TANI">Petani / Buruh Tani</option>
+                  <option value="PEDAGANG KECIL">Pedagang Kecil</option>
+                  <option value="PEKERJA SERABUTAN">Pekerja Serabutan</option>
+                  <option value="ASISTEN RUMAH TANGGA">Asisten Rumah Tangga</option>
+                  <option value="PENGEMUDI / OJEK">Pengemudi / Ojek</option>
+                  <option value="KARYAWAN SWASTA / HONORER">Karyawan Swasta / Honorer</option>
+                  <option value="TIDAK BEKERJA">Tidak Bekerja</option>
+                  <option value="YATIM / PIATU (IKUT WALI)">Yatim / Piatu (Ikut Wali)</option>
+                </select>
+                <div id="pekerjaanManualWrapper" class="mt-2 d-none">
+                  <input type="text" id="pekerjaanManual" class="form-control text-uppercase" placeholder="Ketik pekerjaan orang tua/wali secara manual...">
+                </div>
+              </div>
+
+              <!-- 8. Status Penerimaan PIP -->
+              <div class="col-md-6">
+                <label for="statusPip" class="form-label fw-semibold">Status Penerimaan PIP <span class="text-danger">*</span></label>
+                <select id="statusPip" class="form-select" required>
+                  <option value="">-- Pilih Status PIP --</option>
+                  <option value="Tidak menerima">Tidak menerima</option>
+                  <option value="Menerima">Menerima</option>
+                </select>
+                <div id="pipWarningBox" class="alert alert-warning py-2 px-3 mt-2 mb-0 small d-none">
+                  <i class="bi bi-info-circle-fill me-1"></i>
+                  <strong>Catatan:</strong> Mohon utamakan siswa yang <em>belum menerima PIP</em> agar bantuan tepat sasaran, kecuali dalam kondisi darurat/khusus (jelaskan pada kolom Keterangan).
+                </div>
+              </div>
+
+              <!-- 9. Keterangan -->
+              <div class="col-12">
+                <label for="keterangan" class="form-label fw-semibold">
+                  Keterangan (Alasan Dapat Diberikan Bantuan GNOTA) <span class="text-danger">*</span>
+                </label>
+                <textarea id="keterangan" class="form-control" rows="2" placeholder="Jelaskan kondisi sosial/ekonomi siswa, misal: Yatim piatu tinggal bersama nenek, penghasilan orang tua tidak menentu, rentan putus sekolah..." required></textarea>
+              </div>
+
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+              <button type="submit" id="btnSubmitStudent" class="btn btn-gnota-primary px-4 py-2 rounded-3 fw-bold">
+                <i class="bi bi-check-circle-fill me-2"></i>Simpan Data Siswa
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Tabel Rekap Usulan Sekolah -->
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-white border-bottom py-3 px-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <h3 class="h6 fw-bold text-dark mb-0">
+            <i class="bi bi-table text-primary me-2"></i>Daftar Siswa Diusulkan Sekolah Ini
+          </h3>
+          <button type="button" id="btnOpenPdfModal" class="btn btn-gnota-amber btn-sm rounded-pill px-3 fw-bold" disabled>
+            <i class="bi bi-file-earmark-pdf-fill me-1"></i> Cetak / Unduh Bukti Usulan (PDF)
+          </button>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="studentsTable">
+              <thead class="table-light">
+                <tr>
+                  <th class="text-center" style="width: 48px;">No</th>
+                  <th>Nama Siswa &amp; NISN</th>
+                  <th class="text-center">L/P &amp; Kelas</th>
+                  <th>Orang Tua / Wali &amp; Pekerjaan</th>
+                  <th class="text-center">Status PIP</th>
+                  <th>Keterangan (Alasan GNOTA)</th>
+                  <th class="text-center" style="width: 110px;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="studentsTableBody">
+                <tr>
+                  <td colspan="7" class="text-center text-secondary py-4">
+                    Belum ada siswa yang diusulkan oleh sekolah ini.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ==================== MODAL CETAK PDF BUKTI USULAN ==================== -->
+  <div class="modal fade" id="pdfModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow rounded-4">
+        <div class="modal-header border-bottom">
+          <h5 class="modal-title fw-bold">
+            <i class="bi bi-file-earmark-pdf-fill text-danger me-2"></i>Unduh Bukti Usulan Sekolah (PDF)
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body">
+          <p class="small text-secondary mb-3">
+            Lengkapi data pengesahan Kepala Sekolah di bawah ini (opsional, boleh dikosongkan jika ingin diisi manual setelah dicetak).
+          </p>
+          <div class="mb-3">
+            <label for="pdfKepalaSekolah" class="form-label small fw-semibold">Nama Kepala Sekolah</label>
+            <input type="text" id="pdfKepalaSekolah" class="form-control" placeholder="Contoh: Drs. Ahmad Suryono, M.Pd.">
+          </div>
+          <div class="mb-3">
+            <label for="pdfNipKepsek" class="form-label small fw-semibold">NIP Kepala Sekolah</label>
+            <input type="text" id="pdfNipKepsek" class="form-control" placeholder="Contoh: 19680512 199512 1 002">
+          </div>
+          <div class="mb-2">
+            <label for="pdfTanggal" class="form-label small fw-semibold">Tempat &amp; Tanggal Pengesahan</label>
+            <input type="text" id="pdfTanggal" class="form-control" placeholder="Contoh: Karanganyar, 27 November 2026">
+          </div>
+        </div>
+        <div class="modal-footer border-top">
+          <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
+          <button type="button" id="btnGeneratePdf" class="btn btn-gnota-primary rounded-pill px-4 fw-bold">
+            <i class="bi bi-download me-1"></i> Unduh PDF A4
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== BRANDING FOOTER JEMPROT ==================== -->
+  <footer class="py-3 mt-4 border-top bg-white">
+    <div class="container text-center">
+      <div class="d-flex align-items-center justify-content-center flex-wrap gap-1 text-muted small">
+        <span class="fw-semibold text-secondary" style="font-size: 0.72rem; letter-spacing: 0.05em;">DIGITALLY SHAPED BY</span>
+        <img src="assets/img/logo-jemprot.png" alt="Logo JeMPROT" style="height: 20px; object-fit: contain;" class="mx-1">
+        <span class="fw-bold text-dark" style="font-size: 0.78rem;">[BID SMP 2026]</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== JAVASCRIPT LIBS & APP ==================== -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

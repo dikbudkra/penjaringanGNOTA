@@ -1,0 +1,173 @@
+:root {
+  --gnota-blue-dark: #0D47A1;
+  --gnota-blue: #1565C0;
+  --gnota-blue-light: #1976D2;
+  --gnota-amber: #F57C00;
+  --gnota-amber-light: #FFB300;
+  --bg-surface: #F4F7FB;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-surface);
+  color: #1E293B;
+}
+
+.fw-extrabold {
+  font-weight: 800;
+}
+
+.text-primary-gnota {
+  color: var(--gnota-blue-dark);
+}
+
+/* Splash Screen */
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: linear-gradient(135deg, #FFFFFF 0%, #EEF4FF 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.splash-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.splash-logo {
+  height: 76px;
+  width: auto;
+  object-fit: contain;
+  animation: pulseFloat 1.6s ease-in-out infinite;
+}
+
+@keyframes pulseFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* Header */
+.gnota-header {
+  background: linear-gradient(135deg, var(--gnota-blue-dark) 0%, var(--gnota-blue-light) 100%);
+  border-bottom: 4px solid var(--gnota-amber-light);
+}
+
+.header-logo {
+  height: 44px;
+  width: auto;
+  object-fit: contain;
+}
+
+.logo-divider {
+  width: 1px;
+  height: 32px;
+  background-color: #CBD5E1;
+}
+
+.badge-gnota-amber {
+  background-color: var(--gnota-amber-light);
+  color: #1E293B;
+  font-weight: 800;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  padding: 0.35em 0.75em;
+  border-radius: 50rem;
+}
+
+/* Buttons */
+.btn-gnota-primary {
+  background: linear-gradient(135deg, var(--gnota-blue-dark), var(--gnota-blue-light));
+  color: #FFFFFF;
+  border: none;
+}
+
+.btn-gnota-primary:hover,
+.btn-gnota-primary:focus {
+  background: linear-gradient(135deg, #0A3882, var(--gnota-blue));
+  color: #FFFFFF;
+}
+
+.btn-gnota-amber {
+  background-color: var(--gnota-amber);
+  color: #FFFFFF;
+  border: none;
+}
+
+.btn-gnota-amber:hover:not(:disabled) {
+  background-color: #E65100;
+  color: #FFFFFF;
+}
+
+/* Autocomplete Dropdown */
+.autocomplete-dropdown {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  z-index: 1050;
+  max-height: 260px;
+  overflow-y: auto;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 0.75rem;
+  margin-top: 4px;
+}
+
+.autocomplete-item {
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid #F1F5F9;
+  transition: background-color 0.15s ease;
+}
+
+.autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.autocomplete-item:hover {
+  background-color: #EFF6FF;
+}
+
+/* Quota Box & Icons */
+.quota-box {
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+}
+
+.icon-circle-warning {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #FEF3C7;
+  color: #D97706;
+}
+
+/* Table Polish */
+#studentsTable thead th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #475569;
+  white-space: nowrap;
+}
+
+#studentsTable tbody td {
+  font-size: 0.875rem;
+}
+
+@media (max-width: 576px) {
+  .header-logo {
+    height: 34px;
+  }
+  .splash-logo {
+    height: 60px;
+  }
+}
