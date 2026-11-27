@@ -163,6 +163,40 @@ body {
   font-size: 0.875rem;
 }
 
+/* Skeleton Loading Shimmer */
+.skeleton-box {
+  position: relative;
+  overflow: hidden;
+  background-color: #E2E8F0;
+  border-radius: 0.5rem;
+}
+
+.skeleton-box::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: skeletonShimmer 1.3s infinite;
+}
+
+@keyframes skeletonShimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton-title { height: 26px; width: 60%; margin: 0 auto; }
+.skeleton-label { height: 14px; width: 42%; margin-bottom: 8px; }
+.skeleton-input { height: 48px; width: 100%; }
+.skeleton-btn   { height: 48px; width: 100%; border-radius: 0.5rem; }
+.skeleton-cell  { height: 16px; width: 100%; }
+
 @media (max-width: 576px) {
   .header-logo {
     height: 34px;

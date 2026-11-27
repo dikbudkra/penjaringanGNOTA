@@ -64,6 +64,39 @@ function hideSplash() {
   }
 }
 
+function toggleGateSkeleton(show) {
+  const skel = document.getElementById("gateSkeleton");
+  const form = document.getElementById("verifyForm");
+  if (skel) skel.classList.toggle("d-none", !show);
+  if (form) form.classList.toggle("d-none", show);
+}
+
+function showTableSkeleton(rowsCount = 3) {
+  const tbody = document.getElementById("studentsTableBody");
+  if (!tbody) return;
+  const rows = [];
+  for (let i = 0; i < rowsCount; i++) {
+    rows.push(`
+      <tr>
+        <td><div class="skeleton-box skeleton-cell"></div></td>
+        <td>
+          <div class="skeleton-box skeleton-cell mb-2" style="width: 78%;"></div>
+          <div class="skeleton-box skeleton-cell" style="width: 48%; height: 12px;"></div>
+        </td>
+        <td><div class="skeleton-box skeleton-cell"></div></td>
+        <td>
+          <div class="skeleton-box skeleton-cell mb-2" style="width: 72%;"></div>
+          <div class="skeleton-box skeleton-cell" style="width: 55%; height: 12px;"></div>
+        </td>
+        <td><div class="skeleton-box skeleton-cell"></div></td>
+        <td><div class="skeleton-box skeleton-cell"></div></td>
+        <td><div class="skeleton-box skeleton-cell"></div></td>
+      </tr>
+    `);
+  }
+  tbody.innerHTML = rows.join("");
+}
+
 async function initApp() {
   if (!isApiConfigured()) {
     document.getElementById("apiWarningBanner").classList.remove("d-none");
@@ -71,6 +104,7 @@ async function initApp() {
     return;
   }
 
+  toggleGateSkeleton(true);
   try {
     const res = await fetch(`${GAS_API_URL}?action=init`);
     const data = await res.json();
@@ -88,9 +122,11 @@ async function initApp() {
       document.getElementById("workspaceSection").classList.add("d-none");
       document.getElementById("closedSection").classList.remove("d-none");
     } else {
+      toggleGateSkeleton(false);
       restoreSavedSession();
     }
   } catch (err) {
+    toggleGateSkeleton(false);
     Swal.fire({
       icon: "error",
       title: "Gagal Terhubung ke Server",
@@ -259,6 +295,8 @@ async function verifySchoolCredentials(namaSekolah, password, silent) {
   if (!silent) {
     btn.disabled = true;
     btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Memeriksa...`;
+  } else {
+    showTableSkeleton(4);
   }
 
   try {
@@ -513,6 +551,7 @@ async function handleStudentSubmit(e) {
   btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...`;
 
   try {
+    showTableSkeleton(Math.max(1, state.students.length));
     const res = await fetch(GAS_API_URL, {
       method: "POST",
       body: JSON.stringify({
@@ -626,6 +665,7 @@ window.confirmDeleteStudent = async function (id, namaSiswa) {
   if (!result.isConfirmed) return;
 
   try {
+    showTableSkeleton(Math.max(1, state.students.length));
     const res = await fetch(GAS_API_URL, {
       method: "POST",
       body: JSON.stringify({
