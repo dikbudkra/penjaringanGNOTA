@@ -435,8 +435,17 @@ function handleChangePassword_(ss, body) {
     if (!npsn || !oldPass || !newPass) {
       return jsonResponse_({ ok: false, message: "Lengkapi password lama dan password baru." });
     }
-    if (newPass.length < 4) {
-      return jsonResponse_({ ok: false, message: "Password baru minimal 4 karakter." });
+    if (
+      newPass.length < 6 ||
+      !/[A-Z]/.test(newPass) ||
+      !/[a-z]/.test(newPass) ||
+      !/[0-9]/.test(newPass) ||
+      !/[^A-Za-z0-9]/.test(newPass)
+    ) {
+      return jsonResponse_({
+        ok: false,
+        message: "Password baru minimal 6 karakter dan wajib mengandung huruf besar, huruf kecil, angka, dan karakter simbol."
+      });
     }
 
     const school = findSchoolByNpsn_(ss, npsn);

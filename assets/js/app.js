@@ -214,7 +214,24 @@ function bindEvents() {
 
   document.getElementById("btnOpenPasswordModal").addEventListener("click", () => {
     document.getElementById("changePasswordForm").reset();
+    document.querySelectorAll(".toggle-pw-btn").forEach((btn) => {
+      const target = document.getElementById(btn.getAttribute("data-target"));
+      if (target) target.type = "password";
+      const icon = btn.querySelector("i");
+      if (icon) icon.className = "bi bi-eye";
+    });
     passwordModalInstance.show();
+  });
+
+  document.querySelectorAll(".toggle-pw-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const target = document.getElementById(btn.getAttribute("data-target"));
+      const icon = btn.querySelector("i");
+      if (!target) return;
+      const show = target.type === "password";
+      target.type = show ? "text" : "password";
+      if (icon) icon.className = show ? "bi bi-eye-slash" : "bi bi-eye";
+    });
   });
 
   document.getElementById("changePasswordForm").addEventListener("submit", handleChangePasswordSubmit);
@@ -343,8 +360,18 @@ async function handleChangePasswordSubmit(e) {
   const newPassword = document.getElementById("newPasswordInput").value.trim();
   const confirmPassword = document.getElementById("confirmPasswordInput").value.trim();
 
-  if (newPassword.length < 4) {
-    Swal.fire("Terlalu Pendek", "Password baru minimal 4 karakter.", "warning");
+  if (
+    newPassword.length < 6 ||
+    !/[A-Z]/.test(newPassword) ||
+    !/[a-z]/.test(newPassword) ||
+    !/[0-9]/.test(newPassword) ||
+    !/[^A-Za-z0-9]/.test(newPassword)
+  ) {
+    Swal.fire(
+      "Password Belum Memenuhi Syarat",
+      "Password baru minimal 6 karakter dan wajib mengandung huruf besar, huruf kecil, angka, serta karakter simbol.",
+      "warning"
+    );
     return;
   }
   if (newPassword !== confirmPassword) {
